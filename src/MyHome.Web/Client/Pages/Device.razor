@@ -1,0 +1,73 @@
+﻿@page "/device"
+@using MyHome.Web.Shared
+@inject HttpClient Http
+
+<PageTitle>Device Registration</PageTitle>
+
+<h1>Register Device</h1>
+
+
+@if (deviceModel == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@deviceModel" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <p>
+            <label>
+                Interface Id:
+                <InputText id="model" @bind-Value="deviceModel.ModelId" />
+            </label>
+        </p>
+        <p>
+            <label>
+                Device Id:
+                <InputText id="device" @bind-Value="deviceModel.DeviceId" />
+            </label>
+        </p>
+        <p>
+            <label>
+                Id Scope:
+                <InputText id="dpsIdScope" @bind-Value="deviceModel.DpsIdScope"/>
+            </label>
+        </p>
+        <p>
+            <label>
+                Dps Endpoint Name:
+                <InputText id="endpointName" @bind-Value="deviceModel.DpsEndpointName"/>
+            </label>
+        </p>
+        <p>
+            <label>
+                Symmetric Key:
+                <InputText id="symmetricKey" @bind-Value="deviceModel.SymmetricKey" />
+            </label>
+        </p>
+        
+        <button type="submit">Register Device</button>
+    </EditForm>
+}
+
+@code {
+    private DeviceModel? deviceModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var deviceResponse = await Http.GetFromJsonAsync<GetDeviceResponse>("device");
+        if (deviceResponse.Registered) {
+            deviceModel = deviceResponse.Device;
+        }
+        else {
+            deviceModel = new();
+            deviceModel.DpsEndpointName = "global.azure-devices-provisioning.net";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await Http.PostAsJsonAsync("device", deviceModel);
+    }
+}

@@ -1,0 +1,35 @@
+version: "2"
+services:
+  broker:
+    image: eclipse-mosquitto:latest
+    ports:
+      - 1885:1885
+    restart: always
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  myhome:
+    depends_on:
+      - broker
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: dotnet MyHome.Web.Server.dll --urls=http://0.0.0.0:80
+    ports:
+      - 8888:80
+
+  thermostat:
+    depends_on:
+      - broker
+    build:
+      context: .
+      dockerfile: ./Thermostat/Dockerfile
+    command: dotnet MyHome.Simulator.Thermostat.dll
+
+  lightbulb:
+    depends_on:
+      - broker
+    build:
+      context: .
+      dockerfile: ./Lightbulb/Dockerfile
+    command: dotnet MyHome.Simulator.LightBulb.dll
