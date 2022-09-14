@@ -11,6 +11,7 @@ namespace MyHome.Core.Devices
         void RegisterDevice(string ModelId, string DeviceId, string DpsIdScope, string DpsEntryPointName, string SymmetricKey);
         void LoadRegisteredDevice();
         void SetApplied();
+        void ClearDevice();
     }
     public class DeviceRegistration : IDeviceRegistration
     {
@@ -74,6 +75,12 @@ namespace MyHome.Core.Devices
         {
             RegistrationState = DeviceRegistrationState.Applied;
             _logger.LogInformation("Device changes have been applied.");
+        }
+
+        public void ClearDevice()
+        {
+            RegistrationState = DeviceRegistrationState.Pending;
+            Device = null;
         }
     }
 

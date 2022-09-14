@@ -53,5 +53,11 @@ namespace MyHome.Web.Server.Controllers
                 model.DpsEndpointName,
                 model.SymmetricKey);
         }
+
+        [HttpDelete]
+        public void Clear()
+        {
+            _deviceRegistration.ClearDevice();
+        }
     }
 }

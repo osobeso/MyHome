@@ -50,6 +50,10 @@ namespace MyHome.Core.Devices
 
         public async Task SendDeviceInfoAsync(CancellationToken cancellationToken)
         {
+            if (Device == null)
+            {
+                return;
+            }
             var deviceInfo = PnpConvention.CreateComponentPropertyPatch(
                 Components.DeviceInformation,
                 new Dictionary<string, object>
@@ -70,6 +74,10 @@ namespace MyHome.Core.Devices
 
         public async Task UpdatePropertyAsync(string componentId, string propertyId, object newValue, CancellationToken cancellationToken)
         {
+            if (Device == null)
+            {
+                return;
+            }
             var deviceProp = PnpConvention.CreateComponentPropertyPatch(componentId, new Dictionary<string, object>
             {
                 { propertyId, newValue }

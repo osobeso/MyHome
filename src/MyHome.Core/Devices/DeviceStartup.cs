@@ -47,6 +47,14 @@ namespace MyHome.Core.Devices
             do
             {
                 await CheckForDeviceChangesAsync();
+
+                // Device can become 'pending' again if it's reset by the user.
+                if (DeviceRegistration.RegistrationState == DeviceRegistrationState.Pending)
+                {
+                    await Task.Delay(5000);
+                    continue;
+                }
+
                 // Send Heartbeat.
                 await DeviceController.SendHeartBeatAsync(stoppingToken);
 

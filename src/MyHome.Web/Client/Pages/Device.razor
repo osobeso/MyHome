@@ -47,11 +47,18 @@ else
             </label>
         </p>
 
-        <button type="submit" disabled="@submitting">Register Device</button>
-        @if (changesSaved)
-        {
-            <label>Changes were saved succesfully.</label>
-        }
+        <p>
+            <button type="submit" disabled="@submitting">Register Device</button>
+            @if (changesSaved)
+            {
+                <label>Changes were saved succesfully.</label>
+            }
+        </p>
+        
+        <p>
+            <button @onclick="@ClearDevice" disabled="@(!deviceRegistered)">Clear Device</button>
+        </p>
+
     </EditForm>
 }
 
@@ -59,15 +66,19 @@ else
     private DeviceModel? deviceModel;
     private bool submitting;
     private bool changesSaved;
+    private const string DefaultDpsEndpointName = "global.azure-devices-provisioning.net";
+    private bool deviceRegistered;
     protected override async Task OnInitializedAsync()
     {
         var deviceResponse = await Http.GetFromJsonAsync<GetDeviceResponse>("device");
         if (deviceResponse!.Registered) {
             deviceModel = deviceResponse.Device;
+            deviceRegistered = true;
         }
         else {
             deviceModel = new();
-            deviceModel.DpsEndpointName = "global.azure-devices-provisioning.net";
+            deviceRegistered = false;
+            deviceModel.DpsEndpointName = DefaultDpsEndpointName;
         }
     }
 
@@ -83,5 +94,13 @@ else
         {
             submitting = false;
         }
+    }
+
+    private async Task ClearDevice()
+    {
+        deviceModel = new();
+        deviceModel.DpsEndpointName = DefaultDpsEndpointName;
+        deviceRegistered = false;
+        await Http.DeleteAsync("device");
     }
 }
