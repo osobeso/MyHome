@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MyHome.Simulator.Thermostat": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

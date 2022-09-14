@@ -20,7 +20,7 @@ namespace MyHome.Web.Server.Controllers
         [HttpGet]
         public GetDeviceResponse Get()
         {
-            if(!_deviceRegistration.IsRegistered)
+            if(_deviceRegistration.Device == null)
             {
                 return new GetDeviceResponse
                 {
@@ -28,7 +28,7 @@ namespace MyHome.Web.Server.Controllers
                     Device = null,
                 };
             }
-            var device = _deviceRegistration.Device!;
+            var device = _deviceRegistration.Device;
             return new GetDeviceResponse
             {
                 Registered = true,

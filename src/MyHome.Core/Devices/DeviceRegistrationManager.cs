@@ -1,49 +1,59 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System.Reflection;
 
 namespace MyHome.Core.Devices
 {
     public interface IDeviceRegistration
     {
-        bool IsRegistered { get; }
+        DeviceRegistrationState RegistrationState { get; }
         Device? Device { get; }
         void RegisterDevice(string ModelId, string DeviceId, string DpsIdScope, string DpsEntryPointName, string SymmetricKey);
-        bool LoadRegisteredDevice();
+        void LoadRegisteredDevice();
+        void SetApplied();
     }
     public class DeviceRegistration : IDeviceRegistration
     {
         private const string DeviceFilePath = "Device.json";
-        public bool IsRegistered => Device != null;
+        public DeviceRegistrationState RegistrationState { get; private set; }
 
         public Device? Device { get; private set; }
+        private readonly ILogger _logger;
+
+        public DeviceRegistration(ILogger<DeviceRegistration> logger)
+        {
+            _logger = logger;
+        }
 
         public void RegisterDevice(string ModelId, string DeviceId, string DpsIdScope, string DpsEntryPointName, string SymmetricKey)
         {
             Device = new(ModelId, DeviceId, DpsIdScope, DpsEntryPointName, SymmetricKey);
             StoreDeviceData(Device);
+            RegistrationState = DeviceRegistrationState.Changed;
         }
 
-        public bool LoadRegisteredDevice()
+        public void LoadRegisteredDevice()
         {
             try
             {
                 var jsonPath = GetDeviceJsonPath();
                 if (!File.Exists(jsonPath))
                 {
-                    return false;
+                    return;
                 }
                 var data = File.ReadAllText(jsonPath);
                 Device = JsonConvert.DeserializeObject<Device>(data);
                 if (Device == null)
                 {
-                    return false;
+                    return;
                 }
 
-                return true;
+                RegistrationState = DeviceRegistrationState.Applied;
             }
             catch
             {
-                return false;
+                RegistrationState = DeviceRegistrationState.Pending;
+                return;
             }
         }
 
@@ -59,7 +69,20 @@ namespace MyHome.Core.Devices
             var dataPath = Path.Combine(rootPath!, DeviceFilePath);
             return dataPath;
         }
+
+        public void SetApplied()
+        {
+            RegistrationState = DeviceRegistrationState.Applied;
+            _logger.LogInformation("Device changes have been applied.");
+        }
     }
 
     public record Device(string ModelId, string DeviceId, string DpsIdScope, string DpsEndpointName, string SymmetricKey);
+}
+
+public enum DeviceRegistrationState
+{
+    Pending,
+    Changed,
+    Applied,
 }

@@ -25,11 +25,12 @@ namespace MyHome.Core.Devices
             Log = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken, Device data)
+        public async Task LoadDeviceAsync(CancellationToken cancellationToken, Device data)
         {
             if (Device != null)
             {
-                throw new Exception("Device already initialized.");
+                // Dispose previous device.
+                await Device.DisposeAsync();
             }
             Data = data;
             Device = await SetupDeviceClientAsync(cancellationToken);

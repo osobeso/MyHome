@@ -46,18 +46,23 @@ else
                 <InputText id="symmetricKey" @bind-Value="deviceModel.SymmetricKey" />
             </label>
         </p>
-        
-        <button type="submit">Register Device</button>
+
+        <button type="submit" disabled="@submitting">Register Device</button>
+        @if (changesSaved)
+        {
+            <label>Changes were saved succesfully.</label>
+        }
     </EditForm>
 }
 
 @code {
     private DeviceModel? deviceModel;
-
+    private bool submitting;
+    private bool changesSaved;
     protected override async Task OnInitializedAsync()
     {
         var deviceResponse = await Http.GetFromJsonAsync<GetDeviceResponse>("device");
-        if (deviceResponse.Registered) {
+        if (deviceResponse!.Registered) {
             deviceModel = deviceResponse.Device;
         }
         else {
@@ -68,6 +73,15 @@ else
 
     private async Task HandleValidSubmit()
     {
-        await Http.PostAsJsonAsync("device", deviceModel);
+        try
+        {
+            submitting = true;
+            await Http.PostAsJsonAsync("device", deviceModel);
+            changesSaved = true;
+        }
+        finally
+        {
+            submitting = false;
+        }
     }
 }

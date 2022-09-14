@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MyHome.Simulator.Lightbulb": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
